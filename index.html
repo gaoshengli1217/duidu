@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>怼怼不亏 - AI定制版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .page {
+            display: none;
+            padding: 40px 30px;
+            min-height: 400px;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #ff6b6b;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #ffe6e6;
+            color: #d63031;
+            border-left-color: #ff6b6b;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .company-type-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .company-card {
+            padding: 30px 20px;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .company-card:hover {
+            border-color: #ff6b6b;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .company-card.selected {
+            border-color: #ff6b6b;
+            background: #fff5f5;
+        }
+
+        .company-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .company-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .company-desc {
+            font-size: 0.85em;
+            color: #999;
+            line-height: 1.5;
+        }
+
+        .scenario-container {
+            margin: 20px 0;
+        }
+
+        .scenario-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .scenario-input {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        .scenario-input:focus {
+            outline: none;
+            border-color: #ff6b6b;
+        }
+
+        .scenario-example {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff5f5;
+            border-radius: 8px;
+            font-size: 0.85em;
+            color: #ff6b6b;
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .level-card {
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .level-card:hover {
+            border-color: #ff6b6b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
+        }
+
+        .level-card.selected {
+            border-color: #ff6b6b;
+            background: #fff5f5;
+        }
+
+        .level-icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .level-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .level-desc {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .quotes-display {
+            margin: 20px 0;
+        }
+
+        .quote-item {
+            background: #fff5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .quote-number {
+            color: #ff6b6b;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .quote-text {
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .ai-generating {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .ai-loader {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #ffe6e6;
+            border-top: 4px solid #ff6b6b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .ai-generating-text {
+            color: #ff6b6b;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .ai-generating-sub {
+            color: #999;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 第一页：首页 -->
+        <div class="page active" id="page1">
+            <h1>🔥 怼怼不亏</h1>
+            <p class="subtitle">AI定制化怼人话术生成器</p>
+            
+            <div class="alert alert-info">
+                💡 本产品采用AI千人千面定制化生成，无需模板，根据您的真实场景智能生成专属话术
+            </div>
+
+            <div class="alert alert-info" style="margin-top: 15px; background: #fff3cd; color: #856404; border-left-color: #ffc107;">
+                ⚡ 已配置AI服务，可直接使用，无需额外配置
+            </div>
+
+            <button class="btn btn-primary" onclick="goToPage(2)" style="margin-top: 20px;">开始使用 →</button>
+        </div>
+
+        <!-- 第二页：选择公司类型 -->
+        <div class="page" id="page2">
+            <h1>🏢 选择你的公司类型</h1>
+            <p class="subtitle">AI会根据不同体制定制话术策略</p>
+            
+            <div class="company-type-grid">
+                <div class="company-card" onclick="selectCompanyType('state')">
+                    <div class="company-icon">🏛️</div>
+                    <div class="company-name">国企/事业单位</div>
+                    <div class="company-desc">体制内环境<br>注重策略与分寸</div>
+                </div>
+                <div class="company-card" onclick="selectCompanyType('private')">
+                    <div class="company-icon">🏢</div>
+                    <div class="company-name">私企/外企</div>
+                    <div class="company-desc">市场化环境<br>强调权益与底线</div>
+                </div>
+            </div>
+
+            <button class="btn btn-secondary" onclick="goToPage(1)">← 返回</button>
+        </div>
+
+        <!-- 第三页：场景输入 -->
+        <div class="page" id="page3">
+            <h1>📝 描述你的场景</h1>
+            <p class="subtitle">说说发生了什么让你不爽的事</p>
+            
+            <div class="scenario-container">
+                <div class="scenario-title">具体场景描述</div>
+                <textarea id="scenarioInput" 
+                          class="scenario-input" 
+                          placeholder="详细描述让你愤怒的场景，包括人物、事件、对话等...&#10;&#10;例如：&#10;领导让我周末加班做PPT，说是紧急项目，但不给加班费也不调休。我问能不能平时做，他说就得周末，理由是平时我'看起来不忙'。我平时天天加班到9点，周末还要被占用..."></textarea>
+                <div class="scenario-example">
+                    💡 描述越详细，AI生成的话术越精准有力
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="goToPage(4)">下一步 →</button>
+            <button class="btn btn-secondary" onclick="goToPage(2)">← 返回</button>
+        </div>
+
+        <!-- 第四页：选择愤怒烈度 -->
+        <div class="page" id="page4">
+            <h1>😤 选择愤怒烈度</h1>
+            <p class="subtitle">根据你的真实感受选择</p>
+            
+            <div class="level-grid">
+                <div class="level-card" onclick="selectLevel(1)">
+                    <div class="level-icon">😐</div>
+                    <div class="level-name">微恼</div>
+                    <div class="level-desc">温和表达</div>
+                </div>
+                <div class="level-card" onclick="selectLevel(2)">
+                    <div class="level-icon">😠</div>
+                    <div class="level-name">中怒</div>
+                    <div class="level-desc">据理力争</div>
+                </div>
+                <div class="level-card" onclick="selectLevel(3)">
+                    <div class="level-icon">🤬</div>
+                    <div class="level-name">大怒</div>
+                    <div class="level-desc">强硬反击</div>
+                </div>
+                <div class="level-card" onclick="selectLevel(4)">
+                    <div class="level-icon">💢</div>
+                    <div class="level-name">暴怒</div>
+                    <div class="level-desc">核武级火力</div>
+                </div>
+            </div>
+
+            <button class="btn btn-secondary" onclick="goToPage(3)">← 返回修改</button>
+        </div>
+
+        <!-- 第五页：生成结果 -->
+        <div class="page" id="page5">
+            <h1>💬 AI话术生成</h1>
+            <p class="subtitle" id="levelSubtitle">专属话术</p>
+            
+            <div id="quotesDisplay" class="quotes-display">
+                <!-- AI生成的话术将显示在这里 -->
+            </div>
+
+            <button class="btn btn-primary" onclick="goToPage(3)">🔄 重新生成</button>
+            <button class="btn btn-secondary" onclick="goToPage(1)">← 返回首页</button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // 🔑 API配置区 - 使用后端代理（避免浏览器CORS限制）
+        // ============================================
+        const API_PROXY_URL = '/api/qwen';  // 后端Serverless函数已植入API Key
+        // ============================================
+
+        let selectedCompanyType = '';
+
+        // 愤怒烈度配置
+        const ANGER_LEVELS = {
+            state: {  // 国企版本
+                1: {
+                    name: '😐 微恼',
+                    subtitle: '温和表达不满，保持体制内分寸',
+                    systemPrompt: `你是一个体制内沟通专家。用户在国企/事业单位工作，需要在体制内规则下温和表达不满。
+
+生成要求：
+1. 语气：委婉、含蓄、讲政治规矩
+2. 策略：强调组织原则、制度规定、团队大局
+3. 措辞：使用"请示"、"建议"、"商量"等体制话术
+4. 长度：每条50-80字
+5. 生成3条符合体制内风格的温和回应`
+                },
+                2: {
+                    name: '😠 中怒',
+                    subtitle: '据理力争，引用制度规定',
+                    systemPrompt: `你是一个体制内维权顾问。用户需要在国企/事业单位环境下坚定维权。
+
+生成要求：
+1. 语气：坚定但符合体制规范
+2. 策略：引用规章制度、上级文件、劳动法规
+3. 措辞：使用"按照规定"、"根据文件"、"向上级反映"
+4. 长度：每条80-120字
+5. 生成3条有理有据、符合体制的维权话术`
+                },
+                3: {
+                    name: '🤬 大怒',
+                    subtitle: '强硬表态，威胁上报投诉',
+                    systemPrompt: `你是一个体制内强硬谈判专家。用户需要在国企/事业单位环境下强力反击。
+
+生成要求：
+1. 语气：强硬但不失体制规矩
+2. 策略：威胁向纪检、工会、上级部门投诉举报
+3. 措辞：使用"纪检监察"、"组织程序"、"信访投诉"
+4. 长度：每条100-150字
+5. 生成3条强硬有力、符合体制投诉渠道的话术`
+                },
+                4: {
+                    name: '💢 暴怒',
+                    subtitle: '彻底撕破脸，动用所有渠道',
+                    systemPrompt: `你是一个体制内极限维权专家。用户已忍无可忍，要动用所有体制内外手段。
+
+生成要求：
+1. 语气：不留情面但懂体制博弈
+2. 策略：威胁舆论曝光、纪委举报、劳动仲裁、媒体投诉
+3. 措辞：可提及"12345"、"纪委信箱"、"新闻媒体"、"网络曝光"
+4. 长度：每条120-200字
+5. 生成3条极限施压、多渠道威胁的话术`
+                }
+            },
+            private: {  // 私企版本
+                1: {
+                    name: '😐 微恼',
+                    subtitle: '温和表达不满，保持职业素养',
+                    systemPrompt: `你是一个职场沟通专家。用户在私企/外企工作，需要温和表达不满。
+
+生成要求：
+1. 语气：温和、专业、礼貌
+2. 策略：强调团队协作、个人感受、合理建议
+3. 措辞：使用"我觉得"、"建议"、"希望"等职场用语
+4. 长度：每条50-80字
+5. 生成3条职业化的温和表达`
+                },
+                2: {
+                    name: '😠 中怒',
+                    subtitle: '据理力争，明确个人权益',
+                    systemPrompt: `你是一个职场权益顾问。用户需要在私企/外企环境下坚定维权。
+
+生成要求：
+1. 语气：坚定、有理有据
+2. 策略：引用劳动法、公司制度、行业惯例
+3. 措辞：使用"劳动合同"、"加班费"、"合法权益"
+4. 长度：每条80-120字
+5. 生成3条明确维权、讲法律的话术`
+                },
+                3: {
+                    name: '🤬 大怒',
+                    subtitle: '强硬反击，威胁法律途径',
+                    systemPrompt: `你是一个劳动纠纷专家。用户需要在私企/外企环境下强力反击。
+
+生成要求：
+1. 语气：强硬、直接
+2. 策略：威胁劳动仲裁、法律诉讼、离职跳槽
+3. 措辞：使用"劳动仲裁"、"法律程序"、"赔偿"、"辞职"
+4. 长度：每条100-150字
+5. 生成3条强硬表态、明确后果的话术`
+                },
+                4: {
+                    name: '💢 暴怒',
+                    subtitle: '彻底撕破脸，全面开战',
+                    systemPrompt: `你是一个职场极限维权专家。用户已忍无可忍，要全面反击。
+
+生成要求：
+1. 语气：犀利、不留情面
+2. 策略：威胁舆论曝光、行业曝光、法律诉讼、立即离职
+3. 措辞：可提及"脉脉爆料"、"知乎曝光"、"劳动监察"、"黑名单"
+4. 长度：每条120-200字
+5. 生成3条极限反击、多管齐下的话术`
+                }
+            }
+        };
+
+        // 页面切换
+        function goToPage(pageNum) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page' + pageNum).classList.add('active');
+        }
+
+        // 选择公司类型
+        function selectCompanyType(type) {
+            selectedCompanyType = type;
+            document.querySelectorAll('.company-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            
+            setTimeout(() => {
+                goToPage(3);
+            }, 300);
+        }
+
+        // 调用通义千问API
+        async function callQwenAPI(userMessage, systemMessage) {
+            try {
+                const requestBody = {
+                    model: 'qwen-turbo',
+                    input: {
+                        messages: [
+                            {
+                                role: 'system',
+                                content: systemMessage
+                            },
+                            {
+                                role: 'user',
+                                content: userMessage
+                            }
+                        ]
+                    },
+                    parameters: {
+                        result_format: 'message',
+                        temperature: 0.85,
+                        top_p: 0.9,
+                        max_tokens: 1500,
+                        enable_search: false
+                    }
+                };
+
+                const response = await fetch(API_PROXY_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ requestBody })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `网络错误 (${response.status})`);
+                }
+
+                const data = await response.json();
+
+                if (data.success && data.data && data.data.output && data.data.output.choices && data.data.output.choices[0]) {
+                    return {
+                        success: true,
+                        content: data.data.output.choices[0].message.content
+                    };
+                } else {
+                    throw new Error('API返回格式错误');
+                }
+            } catch (error) {
+                console.error('API调用错误:', error);
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+
+        // 选择愤怒烈度并生成AI话术
+        async function selectLevel(level) {
+            document.querySelectorAll('.level-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+
+            const scenario = document.getElementById('scenarioInput').value.trim();
+            
+            if (!scenario) {
+                alert('⚠️ 请先在上一页描述你的场景');
+                goToPage(3);
+                return;
+            }
+
+            if (!selectedCompanyType) {
+                alert('⚠️ 请先选择公司类型');
+                goToPage(2);
+                return;
+            }
+
+            goToPage(5);
+            
+            const levelConfig = ANGER_LEVELS[selectedCompanyType][level];
+            document.getElementById('levelSubtitle').textContent = levelConfig.subtitle;
+            
+            document.getElementById('quotesDisplay').innerHTML = `
+                <div class="ai-generating">
+                    <div class="ai-loader"></div>
+                    <div class="ai-generating-text">AI 正在为你定制专属话术...</div>
+                    <div class="ai-generating-sub">烈度：${levelConfig.name} | 场景分析中</div>
+                </div>
+            `;
+
+            await generateAIQuotes(scenario, levelConfig);
+        }
+
+        // 生成AI话术
+        async function generateAIQuotes(scenario, levelConfig) {
+            const companyTypeText = selectedCompanyType === 'state' ? '国企/事业单位' : '私企/外企';
+            const userMessage = `公司类型：${companyTypeText}\n场景描述：${scenario}\n\n请根据以上信息，生成3条回应话术。`;
+            
+            const result = await callQwenAPI(userMessage, levelConfig.systemPrompt);
+            
+            if (result.success) {
+                const aiContent = result.content;
+                
+                const quotesHTML = `
+                    <div class="quote-item">
+                        <div class="quote-number">🎯 AI 定制话术（${selectedCompanyType === 'state' ? '国企版' : '私企版'}）</div>
+                        <div class="quote-text">${aiContent.replace(/\n/g, '<br>')}</div>
+                    </div>
+                `;
+                
+                document.getElementById('quotesDisplay').innerHTML = quotesHTML;
+            } else {
+                document.getElementById('quotesDisplay').innerHTML = `
+                    <div class="alert" style="background: #ffebee; color: #c62828; border-left-color: #f44336;">
+                        ❌ 生成失败：${result.error}<br><br>
+                        可能原因：<br>
+                        1. 网络连接问题<br>
+                        2. API Key 额度不足<br>
+                        3. 服务暂时不可用<br><br>
+                        请稍后重试或检查API配置
+                    </div>
+                `;
+            }
+        }
+
+        // 页面加载初始化
+        window.onload = function() {
+            console.log('怼怼不亏 AI已就绪 🔥');
+        };
+    </script>
+</body>
+</html>
